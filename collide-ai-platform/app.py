@@ -2,7 +2,6 @@
 COLLIDE AI Platform - Flask Backend
 Web platform for brand consulting with admin controls
 """
-
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 import logging
@@ -23,24 +22,24 @@ logger = logging.getLogger(__name__)
 # CORS configuration (allow specific origins if provided)
 allowed_origins = os.getenv('CORS_ORIGINS')  # comma-separated origins, e.g., https://yourdomain.com,https://admin.yourdomain.com
 if allowed_origins:
-    origins = [o.strip() for o in allowed_origins.split(',') if o.strip()]
-    CORS(app, resources={r"/*": {"origins": origins}})
+     origins = [o.strip() for o in allowed_origins.split(',') if o.strip()]
+     CORS(app, resources={r"/*": {"origins": origins}})
 else:
-    CORS(app)
+     CORS(app)
 
 # Admin credentials (in production, use database with hashed passwords)
 ADMIN_CREDENTIALS = {
-    'admin': 'collide2025'  # Change this in production!
+     'admin': 'collide2025'  # Change this in production!
 }
 
 # Store conversations (in production, use a database)
 conversations = []
 settings = {
-    'openai_api_key': os.getenv('OPENAI_API_KEY', ''),
-    'model': 'gpt-4',
-    'temperature': 0.7,
-    'max_tokens': 800,
-    'use_api': False  # Toggle between API and rule-based
+     'openai_api_key': os.getenv('OPENAI_API_KEY', ''),
+     'model': 'gpt-4',
+     'temperature': 0.7,
+     'max_tokens': 800,
+     'use_api': False  # Toggle between API and rule-based
 }
 
 # System prompt
@@ -81,145 +80,145 @@ Always maintain a professional, insightful, and inspiring tone. You solidify bra
 
 
 def admin_required(f):
-    """Decorator to require admin authentication"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('admin_logged_in'):
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated_function
+     """Decorator to require admin authentication"""
+     @wraps(f)
+     def decorated_function(*args, **kwargs):
+          if not session.get('admin_logged_in'):
+                return redirect(url_for('admin_login'))
+          return f(*args, **kwargs)
+     return decorated_function
 
 
 def get_rule_based_response(message):
-    """Provide rule-based consultation responses"""
-    message_lower = message.lower()
+     """Provide rule-based consultation responses"""
+     message_lower = message.lower()
     
-    # Brand strategy queries
-    if any(word in message_lower for word in ['brand', 'identity', 'positioning']):
-        return """**BRAND-SHAPING FRAMEWORK**
+     # Brand strategy queries
+     if any(word in message_lower for word in ['brand', 'identity', 'positioning']):
+          return """**BRAND-SHAPING FRAMEWORK**
 
 Strong brands are built on three pillars:
 
 1. **AUTHENTIC CORE**
-   - Brand purpose: Why do you exist beyond profit?
-   - Brand values: What principles guide your decisions?
-   - Brand personality: How do you want to be perceived?
+    - Brand purpose: Why do you exist beyond profit?
+    - Brand values: What principles guide your decisions?
+    - Brand personality: How do you want to be perceived?
 
 2. **STRATEGIC POSITIONING**
-   - Target audience: Who specifically needs what you offer?
-   - Unique value: What makes you distinctively valuable?
-   - Market position: Where do you fit in the landscape?
+    - Target audience: Who specifically needs what you offer?
+    - Unique value: What makes you distinctively valuable?
+    - Market position: Where do you fit in the landscape?
 
 3. **VISUAL & VERBAL IDENTITY**
-   - Visual system: Colors, typography, imagery style
-   - Brand voice: How you communicate (tone, language)
-   - Touchpoints: Consistent experience across all platforms
+    - Visual system: Colors, typography, imagery style
+    - Brand voice: How you communicate (tone, language)
+    - Touchpoints: Consistent experience across all platforms
 
 What aspect would you like to develop first?"""
     
-    # Business development queries
-    elif any(word in message_lower for word in ['business', 'launch', 'growth', 'revenue', 'pricing']):
-        return """**SUSTAINABLE BUSINESS DEVELOPMENT**
+     # Business development queries
+     elif any(word in message_lower for word in ['business', 'launch', 'growth', 'revenue', 'pricing']):
+          return """**SUSTAINABLE BUSINESS DEVELOPMENT**
 
 Let's align your creative vision with viable business metrics:
 
 1. **BUSINESS MODEL**
-   - Revenue streams: How will you monetize?
-   - Pricing strategy: Value-based vs. cost-plus
-   - Distribution: Direct, retail, hybrid?
+    - Revenue streams: How will you monetize?
+    - Pricing strategy: Value-based vs. cost-plus
+    - Distribution: Direct, retail, hybrid?
 
 2. **GO-TO-MARKET STRATEGY**
-   - Launch approach: Soft launch vs. big reveal
-   - Marketing channels: Where is your audience?
-   - Partnership opportunities: Strategic collaborations
+    - Launch approach: Soft launch vs. big reveal
+    - Marketing channels: Where is your audience?
+    - Partnership opportunities: Strategic collaborations
 
 3. **GROWTH METRICS**
-   - Short-term goals (3-6 months)
-   - Medium-term milestones (1-2 years)
-   - Long-term vision (3-5 years)
+    - Short-term goals (3-6 months)
+    - Medium-term milestones (1-2 years)
+    - Long-term vision (3-5 years)
 
 What's your current revenue model, or what are you considering?"""
     
-    # Target audience queries
-    elif any(word in message_lower for word in ['audience', 'customer', 'market', 'demographic']):
-        return """**TARGET AUDIENCE DEFINITION**
+     # Target audience queries
+     elif any(word in message_lower for word in ['audience', 'customer', 'market', 'demographic']):
+          return """**TARGET AUDIENCE DEFINITION**
 
 Understanding your ideal client/customer is crucial:
 
 **THE COLLIDE AUDIENCE FRAMEWORK:**
 
 1. **DEMOGRAPHIC PROFILE**
-   - Age range, location, income level
-   - Lifestyle characteristics
-   - Shopping behaviors
+    - Age range, location, income level
+    - Lifestyle characteristics
+    - Shopping behaviors
 
 2. **PSYCHOGRAPHIC DEPTH**
-   - Values and beliefs
-   - Aspirations and pain points
-   - Media consumption habits
+    - Values and beliefs
+    - Aspirations and pain points
+    - Media consumption habits
 
 3. **BRAND RELATIONSHIP**
-   - Why they need you (functional benefits)
-   - Why they'll love you (emotional benefits)
-   - Why they'll advocate for you (social benefits)
+    - Why they need you (functional benefits)
+    - Why they'll love you (emotional benefits)
+    - Why they'll advocate for you (social benefits)
 
 Who do you envision as your ideal customer? Paint me a picture of them."""
     
-    # Visual identity queries
-    elif any(word in message_lower for word in ['visual', 'design', 'aesthetic', 'look', 'style']):
-        return """**VISUAL IDENTITY DEVELOPMENT**
+     # Visual identity queries
+     elif any(word in message_lower for word in ['visual', 'design', 'aesthetic', 'look', 'style']):
+          return """**VISUAL IDENTITY DEVELOPMENT**
 
 Your visual identity should amplify your brand's authentic essence:
 
 **VISUAL SYSTEM COMPONENTS:**
 
 1. **FOUNDATIONAL ELEMENTS**
-   - Logo/wordmark
-   - Color palette (primary, secondary, accent)
-   - Typography hierarchy
-   - Imagery style & photography direction
+    - Logo/wordmark
+    - Color palette (primary, secondary, accent)
+    - Typography hierarchy
+    - Imagery style & photography direction
 
 2. **MOOD & INSPIRATION**
-   - Visual references that resonate
-   - Emotional tone (minimal, bold, romantic, edgy?)
-   - Cultural influences
+    - Visual references that resonate
+    - Emotional tone (minimal, bold, romantic, edgy?)
+    - Cultural influences
 
 3. **APPLICATION**
-   - Packaging/product presentation
-   - Digital presence (website, social)
-   - Marketing materials
-   - Physical spaces (if applicable)
+    - Packaging/product presentation
+    - Digital presence (website, social)
+    - Marketing materials
+    - Physical spaces (if applicable)
 
 What aesthetic direction feels authentic to your brand vision?"""
     
-    # Competition queries
-    elif any(word in message_lower for word in ['competition', 'competitor', 'differentiat']):
-        return """**COMPETITIVE DIFFERENTIATION**
+     # Competition queries
+     elif any(word in message_lower for word in ['competition', 'competitor', 'differentiat']):
+          return """**COMPETITIVE DIFFERENTIATION**
 
 Standing out in creative industries requires strategic positioning:
 
 **DIFFERENTIATION STRATEGY:**
 
 1. **COMPETITIVE LANDSCAPE**
-   - Direct competitors: Who offers similar products/services?
-   - Indirect competitors: Who solves the same problem differently?
-   - White space: What's missing in the market?
+    - Direct competitors: Who offers similar products/services?
+    - Indirect competitors: Who solves the same problem differently?
+    - White space: What's missing in the market?
 
 2. **YOUR UNIQUE ADVANTAGE**
-   - Product/service differentiation
-   - Brand story & founder narrative
-   - Customer experience excellence
-   - Values-based positioning
+    - Product/service differentiation
+    - Brand story & founder narrative
+    - Customer experience excellence
+    - Values-based positioning
 
 3. **OWNING YOUR POSITION**
-   - Be specific, not everything to everyone
-   - Lead with your strength
-   - Create category of one if possible
+    - Be specific, not everything to everyone
+    - Lead with your strength
+    - Create category of one if possible
 
 What do you offer that no one else does quite like you?"""
     
-    else:
-        return """Thank you for sharing. To provide the most strategic guidance, I'd love to understand more:
+     else:
+          return """Thank you for sharing. To provide the most strategic guidance, I'd love to understand more:
 
 **BRAND FOUNDATION:**
 - What's your brand's core purpose?
@@ -237,7 +236,6 @@ What do you offer that no one else does quite like you?"""
 - What constraints should I consider?
 
 Share more details, and I'll provide targeted strategic advice."""
-
 
 def get_ai_response(message, conversation_history):
     """Get response from OpenAI API"""
@@ -422,6 +420,103 @@ def clear_conversations():
 # ============================================================================
 
 from lead_gen import LeadGenerator
+import sqlite3
+import uuid
+import time
+import os as _os
+
+_REDIS_URL = _os.getenv('REDIS_URL')
+if _REDIS_URL:
+    try:
+        import redis as _redis
+        from rq import Queue as _RQQueue
+        from rq.job import Job as _RQJob
+    except Exception:
+        _redis = None
+        _RQQueue = None
+        _RQJob = None
+
+# Jobs DB (simple SQLite queue for background processing)
+DB_PATH = os.path.join(os.path.dirname(__file__), 'jobs.db')
+
+
+def init_jobs_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS jobs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        job_id TEXT UNIQUE,
+        status TEXT,
+        created_at TEXT,
+        updated_at TEXT,
+        payload TEXT,
+        result TEXT
+    )
+    ''')
+    conn.commit()
+    conn.close()
+
+
+def enqueue_job(payload_dict):
+    # If Redis is configured and rq is available, enqueue into RQ
+    if _REDIS_URL and _redis and _RQQueue:
+        redis_conn = _redis.from_url(_REDIS_URL)
+        q = _RQQueue(connection=redis_conn)
+        # Lazy import tasks to avoid circular imports
+        from tasks import process_lead_campaign
+        rq_job = q.enqueue(process_lead_campaign, payload_dict)
+        return rq_job.get_id()
+
+    # Fallback to SQLite queue
+    job_id = str(uuid.uuid4())
+    created = datetime.now().isoformat()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('INSERT INTO jobs (job_id, status, created_at, updated_at, payload) VALUES (?,?,?,?,?)',
+              (job_id, 'pending', created, created, json.dumps(payload_dict)))
+    conn.commit()
+    conn.close()
+    return job_id
+
+
+def get_job(job_id):
+    # If Redis + RQ used, fetch job info from RQ
+    if _REDIS_URL and _redis and _RQJob:
+        try:
+            redis_conn = _redis.from_url(_REDIS_URL)
+            rq_job = _RQJob.fetch(job_id, connection=redis_conn)
+            return {
+                'job_id': rq_job.get_id(),
+                'status': rq_job.get_status(),
+                'created_at': None,
+                'updated_at': None,
+                'payload': None,
+                'result': rq_job.result
+            }
+        except Exception:
+            # fall back to sqlite lookup
+            pass
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT job_id, status, created_at, updated_at, payload, result FROM jobs WHERE job_id = ?', (job_id,))
+    row = c.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        'job_id': row[0],
+        'status': row[1],
+        'created_at': row[2],
+        'updated_at': row[3],
+        'payload': json.loads(row[4]) if row[4] else None,
+        'result': json.loads(row[5]) if row[5] else None
+    }
+
+
+# Initialize the jobs DB at import time
+init_jobs_db()
 
 @app.route('/lead-gen')
 def lead_gen_page():
@@ -466,6 +561,30 @@ def run_lead_campaign():
     except Exception as e:
         logger.error(f"Error in lead campaign: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/lead-gen/queue', methods=['POST'])
+def queue_lead_campaign():
+    """Enqueue a lead generation campaign to be processed by a background worker."""
+    try:
+        data = request.get_json() or {}
+        # Basic validation
+        if not isinstance(data, dict):
+            return jsonify({'success': False, 'error': 'Invalid payload'}), 400
+
+        job_id = enqueue_job(data)
+        return jsonify({'success': True, 'job_id': job_id}), 202
+    except Exception as e:
+        logger.exception("Error enqueueing lead campaign")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/lead-gen/job/<job_id>')
+def get_job_status(job_id):
+    job = get_job(job_id)
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+    return jsonify(job)
 
 @app.route('/api/lead-gen/outreach', methods=['POST'])
 def send_outreach():
